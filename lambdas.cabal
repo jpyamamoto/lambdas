@@ -1,0 +1,102 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.2.
+--
+-- see: https://github.com/sol/hpack
+
+name:           lambdas
+version:        0.1.0.0
+description:    Interpreters for several versions of Lambda calculi with different characteristics.
+homepage:       https://github.com/jpyamamoto/lambdas#readme
+bug-reports:    https://github.com/jpyamamoto/lambdas/issues
+author:         Juan Pablo Yamamoto
+maintainer:     jpyamamoto@ciencias.unam.mx
+copyright:      2023 Juan Pablo Yamamoto
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    CHANGELOG.md
+
+source-repository head
+  type: git
+  location: https://github.com/jpyamamoto/lambdas
+
+library
+  exposed-modules:
+      CLI
+      Components
+      Typed.Definitions
+      Typed.Interpreter
+      Typed.Parser
+      Untyped.Definitions
+      Untyped.Interpreter
+      Untyped.Parser
+  other-modules:
+      Paths_lambdas
+  hs-source-dirs:
+      src
+  default-extensions:
+      OverloadedStrings
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -fno-warn-unused-do-bind
+  build-depends:
+      base >=4.7 && <5
+    , containers >=0.6
+    , megaparsec >=9.2
+    , mtl >=2.2
+    , parser-combinators >=1.3
+    , text >=1.0
+  default-language: Haskell2010
+
+executable typed
+  main-is: Main.hs
+  other-modules:
+      Paths_lambdas
+  hs-source-dirs:
+      app/Typed
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -fno-warn-unused-do-bind -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , containers >=0.6
+    , lambdas
+    , megaparsec >=9.2
+    , mtl >=2.2
+    , parser-combinators >=1.3
+    , text >=1.0
+  default-language: Haskell2010
+
+executable untyped
+  main-is: Main.hs
+  other-modules:
+      Paths_lambdas
+  hs-source-dirs:
+      app/Untyped
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -fno-warn-unused-do-bind -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , containers >=0.6
+    , lambdas
+    , megaparsec >=9.2
+    , mtl >=2.2
+    , parser-combinators >=1.3
+    , text >=1.0
+  default-language: Haskell2010
+
+test-suite lambdas-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_lambdas
+  hs-source-dirs:
+      test
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -fno-warn-unused-do-bind -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , containers >=0.6
+    , lambdas
+    , megaparsec >=9.2
+    , mtl >=2.2
+    , parser-combinators >=1.3
+    , text >=1.0
+  default-language: Haskell2010

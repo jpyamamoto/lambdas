@@ -1,0 +1,68 @@
+{-- Boolean Definitions --}
+true  = λ t . λ f . t
+false = λ t . λ f . f
+not = λ b . b false true
+and = λ a . λ b . a b false
+or  = λ a . λ b . a true b
+impl  = λ a . λ b . or (not a) b
+equiv = λ a . λ b . and (impl a b) (impl b a)
+eqb  = λ x . λ y . if (equiv x y) true false
+if  = λ b . λ t . λ e . b t e
+{-- End Boolean Definitions --}
+
+-- Church Numerals
+cero    = λ s . λ z . z
+uno     = λ s . λ z . s z
+dos     = λ s . λ z . s (s z)
+tres    = λ s . λ z . s (s (s z))
+cuatro  = λ s . λ z . s (s (s (s z)))
+cinco   = λ s . λ z . s (s (s (s (s z))))
+seis    = λ s . λ z . s (s (s (s (s (s z)))))
+siete   = λ s . λ z . s (s (s (s (s (s (s z))))))
+ocho    = λ s . λ z . s (s (s (s (s (s (s (s z)))))))
+nueve   = λ s . λ z . s (s (s (s (s (s (s (s (s z))))))))
+diez    = λ s . λ z . s (s (s (s (s (s (s (s (s (s z)))))))))
+
+-- Operations
+succ = λ x . λ s . λ z . s (x s z)
+plus = λ m . λ n . λ s . λ z . m s (n s z)
+prod = λ x . λ y. x (plus y) cero
+pred = λ n . λ s . λ z . n (λ g . λ h . h (g s)) (λ u . z) (λ u . u)
+minus = λ m . λ n . n pred m
+
+-- Comparison
+iszero = λ n . n (λ x. false) true
+leq = λ x . λ y . iszero (minus x y)
+eqn = λ x . λ y . and (leq x y) (leq y x)
+
+-- Complex Functions
+factorial = λ n . if (eqn n cero)
+                     uno
+                     (prod n (factorial (pred n)))
+
+fibonacci = λ n . if (eqn n cero)
+                     cero
+                     (if (eqn n uno)
+                         uno
+                         (plus (fibonacci (pred n)) (fibonacci (minus n dos))))
+
+-- Examples
+:e plus cero cero
+:e plus cero uno
+:e plus tres siete
+:e plus siete tres
+
+:e pred tres
+:e minus tres uno
+:e minus ocho cinco
+
+:e eqn diez diez
+:e eqn diez nueve
+
+:e factorial cero
+:e factorial uno
+:e factorial tres
+
+:e fibonacci cero
+:e fibonacci uno
+:e fibonacci siete

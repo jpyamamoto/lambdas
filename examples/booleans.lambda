@@ -1,0 +1,25 @@
+-- Booleans
+
+true  = λ t . λ f . t
+false = λ t . λ f . f
+
+-- Operators
+not = λ b . b false true
+and = λ a . λ b . a b false
+or  = λ a . λ b . a true b
+impl  = λ a . λ b . or (not a) b
+equiv = λ a . λ b . and (impl a b) (impl b a)
+
+-- Control
+eq  = λ x . λ y . if (equiv x y) true false
+if  = λ b . λ t . λ e . b t e
+
+-- <=> Truth Table
+:e equiv true  true
+:e equiv true  false
+:e equiv false true
+:e equiv false false
+
+-- Example If
+:e if true x y
+:e if false u v

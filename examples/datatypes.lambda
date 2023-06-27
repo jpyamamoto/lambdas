@@ -1,0 +1,72 @@
+{-- Boolean Definitions --}
+true  = λ t . λ f . t
+false = λ t . λ f . f
+not = λ b . b false true
+and = λ a . λ b . a b false
+or  = λ a . λ b . a true b
+impl  = λ a . λ b . or (not a) b
+equiv = λ a . λ b . and (impl a b) (impl b a)
+eqb  = λ x . λ y . if (equiv x y) true false
+if  = λ b . λ t . λ e . b t e
+{-- End Boolean Definitions --}
+
+{-- Natural Definitions --}
+cero    = λ s . λ z . z
+uno     = λ s . λ z . s z
+dos     = λ s . λ z . s (s z)
+tres    = λ s . λ z . s (s (s z))
+cuatro  = λ s . λ z . s (s (s (s z)))
+cinco   = λ s . λ z . s (s (s (s (s z))))
+seis    = λ s . λ z . s (s (s (s (s (s z)))))
+siete   = λ s . λ z . s (s (s (s (s (s (s z))))))
+ocho    = λ s . λ z . s (s (s (s (s (s (s (s z)))))))
+nueve   = λ s . λ z . s (s (s (s (s (s (s (s (s z))))))))
+diez    = λ s . λ z . s (s (s (s (s (s (s (s (s (s z)))))))))
+succ = λ x . λ s . λ z . s (x s z)
+plus = λ m . λ n . λ s . λ z . m s (n s z)
+prod = λ x . λ y. x (plus y) cero
+pred = λ n . λ s . λ z . n (λ g . λ h . h (g s)) (λ u . z) (λ u . u)
+minus = λ m . λ n . n pred m
+iszero = λ n . n (λ x. false) true
+leq = λ x . λ y . iszero (minus x y)
+eqn = λ x . λ y . and (leq x y) (leq y x)
+{-- End Natural Definitions --}
+
+{-- Pairs --}
+-- Definition
+pair = lambda a . lambda b . lambda f . ((f a) b)
+
+-- Operations
+fst = lambda p . p (lambda a . lambda b . a)
+snd = lambda p . p (lambda a . lambda b . b)
+
+-- Examples
+:e pair uno dos
+
+{-- Lists --}
+-- Definition
+nil = lambda f . lambda s . s
+cons = lambda head . lambda tail . lambda f . lambda s . f head (tail f s)
+
+-- Operations
+length = lambda list . list (lambda a . lambda res . succ res) cero
+sum = lambda list . list (lambda a . lambda res . plus a res) cero
+concat = lambda list1 . lambda list2 . list1 cons list2
+
+-- Examples
+l1 = cons tres (cons dos (cons uno (cons cero nil)))
+:e length l1
+:e sum l1
+:e concat (cons cuatro nil) l1
+
+{-- Trees (information only in leafs) --}
+-- Definition
+leaf = lambda a . lambda n . lambda lf . lf a
+node = lambda l . lambda r . lambda n . lambda lf . n (l n lf) (r n lf)
+
+-- Operations
+size = lambda tree . tree (lambda sizeL . lambda sizeR . succ (plus sizeL sizeR)) (lambda v . uno)
+
+-- Examples
+t1 = node (node (leaf cero) (leaf uno)) (leaf dos)
+:e size t1
