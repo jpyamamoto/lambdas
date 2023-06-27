@@ -33,8 +33,9 @@ Lambda Calculus:
 
 - [x] Pure: `untyped`
 - [ ] Simply Typed (a la Curry): `typed`
-  - [x] Naturals
-  - [x] Booleans
+  - [x] Naturals.
+  - [x] Booleans.
+  - [ ] Type inference.
 - [ ] Simply Typed (a la Church).
   - [ ] Typing definitions.
 - [ ] Simply Typed with fixpoint recursion.
