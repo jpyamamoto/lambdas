@@ -35,6 +35,7 @@ Lambda Calculus:
 - [ ] Simply Typed (a la Curry): `typed`
   - [x] Naturals.
   - [x] Booleans.
+  - [ ] Operators.
   - [ ] Type inference.
 - [ ] Simply Typed (a la Church).
   - [ ] Typing definitions.

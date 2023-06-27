@@ -14,6 +14,9 @@ import Components (ProgramParser)
 
 type Parser = ParsecT Void Text (State [String])
 
+reservedWords :: [String]
+reservedWords = ["true", "false", "if", "iszero", "lambda", "then", "else", "succ"]
+
 sc :: Parser ()
 sc = L.space
   space1
@@ -35,29 +38,8 @@ parens = between (symbol "(") (symbol ")")
 lambda :: Parser Text
 lambda = reserved "lambda" <|> symbol "λ" <|> symbol "\\"
 
-arrow :: Parser Text
-arrow = symbol "->"
-
 dot :: Parser Text
 dot = symbol "."
-
-colon :: Parser Text
-colon = symbol ":"
-
-typeIdentifier :: Parser Type
-typeIdentifier = Simple <$> ((:) <$> upperChar <*> many alphaNumChar)
-
-arrowType :: Parser Type
-arrowType = Arrow <$> (typeVal <* arrow) <*> typeVal
-
-typeVal :: Parser Type
-typeVal = typeIdentifier <|> try arrowType
-
-typedTerm :: Parser Term
-typedTerm = do
-  t <- term
-  colon
-  Type t <$> typeVal
 
 isdefined :: Parser Text
 isdefined = symbol "=" <|> symbol "≐"
@@ -65,7 +47,7 @@ isdefined = symbol "=" <|> symbol "≐"
 identifierWord :: Parser String
 identifierWord = (lexeme . try) (p >>= check)
   where p = (:) <$> lowerChar <*> many alphaNumChar
-        check w = if w `elem` ["true", "false"]
+        check w = if w `elem` reservedWords
                      then getSourcePos
                           >>= (\l -> fail $
                                 "[Line " ++ show l ++"] keyword " ++ show w ++
@@ -79,6 +61,22 @@ boolean :: Parser Term
 boolean = Bool <$> (parseTrue <|> parseFalse)
   where parseTrue = reserved "true" $> True
         parseFalse = reserved "false" $> False
+
+ifTerm :: Parser Term
+ifTerm = do
+  reserved "if"
+  g <- term
+  reserved "then"
+  t <- term
+  reserved "else"
+  e <- term
+  return $ If g t e
+
+iszero :: Parser Term
+iszero = reserved "iszero" *> (IsZero <$> term)
+
+succTerm :: Parser Term
+succTerm = reserved "succ" *> (Suc <$> term)
 
 variable :: Parser Term
 variable = do
@@ -102,6 +100,9 @@ term = foldl1 App <$> some (
       parens term
   <|> boolean
   <|> natural
+  <|> iszero
+  <|> succTerm
+  <|> ifTerm
   <|> try lamAbs
   <|> try nondef)
   where nondef = variable <* notFollowedBy isdefined

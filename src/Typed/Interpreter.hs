@@ -34,10 +34,18 @@ beta context   (Var Nothing name) = case M.lookup name context of
   (Just t) -> beta context t
   Nothing  -> Var Nothing name
 beta _       v@(Var (Just _) _) = v
-beta _         (Nat n)   = Nat n
-beta _         (Bool b)  = Bool b
-beta context   (Abs n t) = Abs n (beta context t)
-beta context   (App f x) = betaApp context (beta context f) (beta context x)
+beta _         (Nat n)    = Nat n
+beta _         (Bool b)   = Bool b
+beta _         (Suc (Nat n))   = Nat $ succ n
+beta context   (Suc t)         = beta context $ Suc (beta context t)
+beta context   (If (Bool True) t _)  = beta context t
+beta context   (If (Bool False) _ e) = beta context e
+beta context   (If g t e) = beta context (If (beta context g) t e)
+beta _         (IsZero (Nat 0)) = Bool True
+beta _         (IsZero (Nat _)) = Bool False
+beta context   (IsZero t) = beta context (IsZero (beta context t))
+beta context   (Abs n t)  = Abs n (beta context t)
+beta context   (App f x)  = betaApp context (beta context f) (beta context x)
 
 betaApp :: Context -> Term -> Term -> Term
 betaApp context (Abs _ t) x = beta context unshiftedT
