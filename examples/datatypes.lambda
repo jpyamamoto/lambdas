@@ -46,11 +46,17 @@ snd = lambda p . p (lambda a . lambda b . b)
 {-- Lists --}
 -- Definition
 nil = lambda f . lambda s . s
-cons = lambda head . lambda tail . lambda f . lambda s . f head (tail f s)
+cons = lambda head .
+         lambda tail .
+           lambda f .
+             lambda s .
+               f head (tail f s)
 
 -- Operations
-length = lambda list . list (lambda a . lambda res . succ res) cero
-sum = lambda list . list (lambda a . lambda res . plus a res) cero
+length = lambda list .
+         list (lambda a . lambda res . succ res) cero
+sum = lambda list .
+      list (lambda a . lambda res . plus a res) cero
 concat = lambda list1 . lambda list2 . list1 cons list2
 
 -- Examples
@@ -62,10 +68,14 @@ l1 = cons tres (cons dos (cons uno (cons cero nil)))
 {-- Trees (information only in leafs) --}
 -- Definition
 leaf = lambda a . lambda n . lambda lf . lf a
-node = lambda l . lambda r . lambda n . lambda lf . n (l n lf) (r n lf)
+node = lambda l . lambda r . lambda n . lambda lf .
+        n (l n lf) (r n lf)
 
 -- Operations
-size = lambda tree . tree (lambda sizeL . lambda sizeR . succ (plus sizeL sizeR)) (lambda v . uno)
+size = lambda tree . tree
+                     (lambda sizeL . lambda sizeR .
+                        succ (plus sizeL sizeR))
+                     (lambda v . uno)
 
 -- Examples
 t1 = node (node (leaf cero) (leaf uno)) (leaf dos)

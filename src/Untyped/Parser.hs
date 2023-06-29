@@ -1,7 +1,7 @@
 module Untyped.Parser (parse) where
 
 import Control.Monad.State
-import Text.Megaparsec hiding (parse, State)
+import Text.Megaparsec hiding (parse, State, ParseError)
 import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer as L
 import Data.Text (Text)
@@ -9,9 +9,12 @@ import Data.Void
 import Data.List (elemIndex)
 
 import Untyped.Definitions
-import Components (ProgramParser)
+import Components (ProgramParser, Error (..))
 
 type Parser = ParsecT Void Text (State [String])
+
+reservedWords :: [String]
+reservedWords = ["lambda"]
 
 sc :: Parser ()
 sc = L.space
@@ -40,11 +43,15 @@ dot = symbol "."
 isdefined :: Parser Text
 isdefined = symbol "=" <|> symbol "≐"
 
-identifierWord :: Parser [Char]
-identifierWord = lexeme $ do
-  p1 <- lowerChar
-  p2 <- many alphaNumChar
-  return (p1:p2)
+identifierWord :: Parser String
+identifierWord = (lexeme . try) (p >>= check)
+  where p = (:) <$> lowerChar <*> many alphaNumChar
+        check w = if w `elem` reservedWords
+                     then getSourcePos
+                          >>= (\l -> fail $
+                                "[Line " ++ show l ++"] keyword " ++ show w ++
+                                " cannot be used as variable")
+                     else return w
 
 variable :: Parser Term
 variable = do
@@ -90,5 +97,5 @@ program = sc *> some (definition <|> commandEval <|> commandInfo) <* eof
 
 parse :: ProgramParser (Instruction Term)
 parse text = case runState (runParserT program "" text) [] of
-  (Left err, _)  -> Left $ errorBundlePretty err
+  (Left err, _)  -> Left . ParseError $ errorBundlePretty err
   (Right ast, _) -> Right ast

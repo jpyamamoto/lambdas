@@ -44,7 +44,8 @@ fibonacci = λ n . if (eqn n cero)
                      cero
                      (if (eqn n uno)
                          uno
-                         (plus (fibonacci (pred n)) (fibonacci (minus n dos))))
+                         (plus (fibonacci (pred n))
+                               (fibonacci (minus n dos))))
 
 -- Examples
 :e plus cero cero
