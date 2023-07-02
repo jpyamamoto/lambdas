@@ -1,6 +1,6 @@
 # Lambda Calculus Interpreters
 
-Interpreters for several extensions of Lambda Calculi.
+Interpreters for several extensions of Lambda Calculus.
 
 - Dynamic scope
 - Locally nameless representation
@@ -32,14 +32,13 @@ stack run <interpreter>
 Lambda Calculus:
 
 - [x] Pure: `untyped`
-- [ ] Simply Typed (a la Curry): `typed`
+- [x] Simply Typed (a la Church): `typed`
   - [x] Naturals.
   - [x] Booleans.
-  - [ ] Operators.
-  - [ ] Type inference.
-- [ ] Simply Typed (a la Church).
-  - [ ] Typing definitions.
-- [ ] Simply Typed with fixpoint recursion.
-- [ ] Universal Quantification.
+  - [x] Operators.
+  - [x] Type checking.
+  - [ ] Fixpoint recursion.
+- [ ] System F.
+  - [ ] Type definitions.
 - [ ] Algebraic Datatypes and Records.
 

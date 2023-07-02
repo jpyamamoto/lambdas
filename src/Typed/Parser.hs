@@ -1,18 +1,24 @@
 module Typed.Parser (parse) where
 
 import Control.Monad.State
-import Text.Megaparsec hiding (parse, State)
-import Text.Megaparsec.Char
-import qualified Text.Megaparsec.Char.Lexer as L
 import Data.Text (Text)
 import Data.Void
 import Data.List (elemIndex)
 import Data.Functor (($>))
+import Data.Bifunctor (Bifunctor(first, second))
 
-import Typed.Definitions
+import Control.Monad.Combinators.Expr (makeExprParser, Operator (..))
+import Text.Megaparsec hiding (parse, State)
+import Text.Megaparsec.Char
+import qualified Text.Megaparsec.Char.Lexer as L
+
+import Typed.Syntax
 import Components (ProgramParser)
+import Error
 
-type Parser = ParsecT Void Text (State [String])
+type Parser = ParsecT Void Text (State ( [String] -- Bound Variables
+                                       , [String] -- Definitions
+                                       ))
 
 reservedWords :: [String]
 reservedWords = ["true", "false", "if", "iszero", "lambda", "then", "else", "succ"]
@@ -62,6 +68,22 @@ boolean = Bool <$> (parseTrue <|> parseFalse)
   where parseTrue = reserved "true" $> True
         parseFalse = reserved "false" $> False
 
+natType :: Parser Text
+natType = symbol "ℕ"<|> reserved "Nat" <|> reserved "Natural"
+
+boolType :: Parser Text
+boolType = symbol "𝔹"<|> reserved "Bool" <|> reserved "Boolean"
+
+typeVal :: Parser Type
+typeVal = (natType $> Natural) <|> (boolType $> Boolean)
+
+typeAnnotation :: Parser Type
+typeAnnotation = symbol ":" *> makeExprParser typeVal typeTable
+
+-- Type Arrows
+typeTable :: [[Operator Parser Type]]
+typeTable = [ [ InfixR (Arrow <$ symbol "->") ] ]
+
 ifTerm :: Parser Term
 ifTerm = do
   reserved "if"
@@ -83,20 +105,39 @@ variable = do
   v <- identifierWord
   list <- get
 
-  return $ Var (elemIndex v list) v
+  let index = elemIndex v (fst list)
+
+  case index of
+    Nothing -> if v `elem` snd list
+      then return $ Var index v
+      else getSourcePos >>= (\l -> fail $ "[Line " ++ show l ++ "] " ++ show v ++
+                              " appears as a free variable")
+    _ -> return $ Var index v
 
 lamAbs :: Parser Term
 lamAbs = do
   lambda
   v <- identifierWord
-  modify (v:)
+  modify (first (v:))
+  ty <- typeAnnotation
   dot
   t <- term
-  modify tail
-  return $ Abs v t
+  modify (first tail)
+  return $ Abs v ty t
 
 term :: Parser Term
-term = foldl1 App <$> some (
+term = makeExprParser nonArithTerm arithTable
+
+-- Arithmetic Expressions
+arithTable :: [[Operator Parser Term]]
+arithTable = [ [ binary "*" Mul ]
+             , [ binary "+" Add ] ]
+
+binary :: Text -> (t -> t -> t) -> Operator Parser t
+binary name f = InfixL (f <$ symbol name)
+
+nonArithTerm :: Parser Term
+nonArithTerm = foldl1 App <$> some (
       parens term
   <|> boolean
   <|> natural
@@ -111,6 +152,9 @@ definition :: Parser (Instruction Term)
 definition = do
   n <- identifierWord
   isdefined
+
+  modify (second (n:))
+
   Defn n <$> term
 
 commandEval :: Parser (Instruction Term)
@@ -125,10 +169,16 @@ commandInfo = do
   line <- getSourcePos
   Info (sourceLine line) <$> term
 
+commandType :: Parser (Instruction Term)
+commandType = do
+  reserved ":t"
+  line <- getSourcePos
+  Type (sourceLine line) <$> term
+
 program :: Parser [Instruction Term]
-program = sc *> some (definition <|> commandEval <|> commandInfo) <* eof
+program = sc *> some (definition <|> commandEval <|> commandInfo <|> commandType) <* eof
 
 parse :: ProgramParser (Instruction Term)
-parse text = case runState (runParserT program "" text) [] of
-  (Left err, _)  -> Left $ errorBundlePretty err
+parse text = case runState (runParserT program "" text) ([], []) of
+  (Left err, _)  -> Left . ParseError $ errorBundlePretty err
   (Right ast, _) -> Right ast

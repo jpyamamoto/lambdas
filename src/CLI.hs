@@ -1,10 +1,10 @@
 module CLI ( buildMain ) where
 
 import System.Environment
-
 import Data.Text (pack)
-import Components (ProgramParser, Interpreter)
 import Data.Maybe (isJust, fromJust)
+
+import Components (ProgramParser, Interpreter)
 
 buildMain :: Show b => ProgramParser a -> Interpreter a b -> IO ()
 buildMain parse interpret = do

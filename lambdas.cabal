@@ -27,12 +27,16 @@ library
   exposed-modules:
       CLI
       Components
-      Typed.Definitions
+      Error
+      Typed.Evaluation
       Typed.Interpreter
       Typed.Parser
-      Untyped.Definitions
+      Typed.Syntax
+      Typed.TypeCheck
+      Untyped.Evaluation
       Untyped.Interpreter
       Untyped.Parser
+      Untyped.Syntax
   other-modules:
       Paths_lambdas
   hs-source-dirs:

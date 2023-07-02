@@ -1,15 +1,17 @@
 module Untyped.Parser (parse) where
 
 import Control.Monad.State
-import Text.Megaparsec hiding (parse, State, ParseError)
-import Text.Megaparsec.Char
-import qualified Text.Megaparsec.Char.Lexer as L
 import Data.Text (Text)
 import Data.Void
 import Data.List (elemIndex)
 
-import Untyped.Definitions
-import Components (ProgramParser, Error (..))
+import Text.Megaparsec hiding (parse, State, ParseError)
+import Text.Megaparsec.Char
+import qualified Text.Megaparsec.Char.Lexer as L
+
+import Untyped.Syntax
+import Components (ProgramParser)
+import Error
 
 type Parser = ParsecT Void Text (State [String])
 
