@@ -29,7 +29,10 @@ data Term =
   -- Operators
   | Suc Term
   | Add Term Term
+  | Min Term Term
   | Mul Term Term
+  -- Recursion
+  | Fix Term
 
 instance Show Term where
   show (Nat n)      = show n
@@ -42,7 +45,9 @@ instance Show Term where
   show (IsZero t)   = "(iszero " ++ show t ++ ")"
   show (Suc t)      = "(succ " ++ show t ++ ")"
   show (Add l r)    = "(" ++ show l ++ " + " ++ show r ++ ")"
+  show (Min l r)    = "(" ++ show l ++ " - " ++ show r ++ ")"
   show (Mul l r)    = "(" ++ show l ++ " * " ++ show r ++ ")"
+  show (Fix t)      = "(fix " ++ show t ++ ")"
 
 data Type =
     Natural

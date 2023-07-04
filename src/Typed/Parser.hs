@@ -21,7 +21,7 @@ type Parser = ParsecT Void Text (State ( [String] -- Bound Variables
                                        ))
 
 reservedWords :: [String]
-reservedWords = ["true", "false", "if", "iszero", "lambda", "then", "else", "succ"]
+reservedWords = ["true", "false", "if", "iszero", "lambda", "then", "else", "succ", "fix"]
 
 sc :: Parser ()
 sc = L.space
@@ -100,6 +100,9 @@ iszero = reserved "iszero" *> (IsZero <$> term)
 succTerm :: Parser Term
 succTerm = reserved "succ" *> (Suc <$> term)
 
+fixTerm :: Parser Term
+fixTerm = reserved "fix" *> (Fix <$> term)
+
 variable :: Parser Term
 variable = do
   v <- identifierWord
@@ -131,7 +134,7 @@ term = makeExprParser nonArithTerm arithTable
 -- Arithmetic Expressions
 arithTable :: [[Operator Parser Term]]
 arithTable = [ [ binary "*" Mul ]
-             , [ binary "+" Add ] ]
+             , [ binary "+" Add, binary "-" Min ] ]
 
 binary :: Text -> (t -> t -> t) -> Operator Parser t
 binary name f = InfixL (f <$ symbol name)
@@ -144,6 +147,7 @@ nonArithTerm = foldl1 App <$> some (
   <|> iszero
   <|> succTerm
   <|> ifTerm
+  <|> fixTerm
   <|> try lamAbs
   <|> try nondef)
   where nondef = variable <* notFollowedBy isdefined
