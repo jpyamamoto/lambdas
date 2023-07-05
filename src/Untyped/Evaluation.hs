@@ -5,8 +5,6 @@ module Untyped.Evaluation ( eval
 import qualified Data.Map as M
 import Untyped.Syntax
 
-import Debug.Trace
-
 type Context = M.Map String Term
 
 eval :: Context -> Term -> Term
@@ -17,14 +15,13 @@ eval ctx t = case beta ctx t of
 
 beta :: Context -> Term -> Maybe Term
 beta ctx (Var Nothing name) = M.lookup name ctx
+beta ctx (App (Abs _ t) x)
+  | isVal ctx x    = Just $ substTopTerm t x
 beta ctx (App f x)
-  | not (isVal ctx f) = beta ctx f >>= \f' -> Just (App f' x)
-beta ctx (App (Abs n t) x) 
-  | isVal ctx x    = Just $ shift (-1) 0 (substitute t 0 (shift 1 0 x))
-  | otherwise      = beta ctx x >>= Just . App (Abs n t)
--- beta ctx (App f x) = beta ctx f >>= \f' -> Just (App f' x)
+  | isVal ctx f = beta ctx x >>= Just . App f
+beta ctx (App f x) = beta ctx f >>= \f' -> Just (App f' x)
 -- To reduce body of abstractions
--- beta ctx (Abs n b) = beta ctx b >>= Just . Abs n
+beta ctx (Abs n b) = beta ctx b >>= Just . Abs n
 beta _   _         = Nothing
 
 
@@ -33,6 +30,10 @@ isVal ctx (Var Nothing name) = not $ M.member name ctx
 isVal _   (Var _ _)          = True
 isVal _   (Abs _ _)          = True
 isVal _   _                  = False
+
+
+substTopTerm :: Term -> Term -> Term
+substTopTerm t x = shift (-1) 0 (substitute t 0 (shift 1 0 x))
 
 
 shift :: Int -> Int -> Term -> Term

@@ -21,8 +21,6 @@ beta ctx (App (Abs _ _ t) x)
 beta ctx (App f x)
   | isVal ctx f = beta ctx x >>= Just . App f
 beta ctx (App f x)  = beta ctx f >>= \f' -> Just (App f' x)
--- To reduce body of abstractions
--- beta ctx (Abs n ty b) = beta ctx b >>= Just . Abs n ty
 beta _   (If (Bool True) t _) = Just t
 beta _   (If (Bool False) _ e) = Just e
 beta ctx (If g t e) = beta ctx g >>= \g' -> Just (If g' t e)
@@ -48,7 +46,7 @@ beta ctx (Fix t)
       (Abs _ _ b) -> Just $ substTopTerm b (Fix t)
       _           -> Nothing
   | otherwise   = beta ctx t >>= Just . Fix
-beta _ _ = Nothing
+beta _ _        = Nothing
 
 
 substTopTerm :: Term -> Term -> Term
@@ -58,8 +56,6 @@ substTopTerm t x = shift (-1) 0 (substitute t 0 (shift 1 0 x))
 isVal :: Context -> Term -> Bool
 isVal _   (Nat _)     = True
 isVal _   (Bool _)    = True
-isVal ctx (Var Nothing name) = not $ M.member name ctx
--- isVal _   (Var _ _)   = True
 isVal _   (Abs _ _ _) = True
 isVal _   _           = False
 
@@ -86,7 +82,6 @@ shift off cut (Min l r)    = Min (shift off cut l)
 shift off cut (Mul l r)    = Mul (shift off cut l)
                                  (shift off cut r)
 shift off cut (Fix t)      = Fix (shift off cut t)
--- shift _      _      t      = t
 
 
 substitute :: Term -> Int -> Term -> Term
@@ -112,4 +107,3 @@ substitute (Min l r)  index t2    = Min (substitute l index t2)
 substitute (Mul l r)  index t2    = Mul (substitute l index t2)
                                         (substitute r index t2)
 substitute (Fix t)    index t2    = Fix (substitute t index t2)
--- substitute t          _     _     = t
