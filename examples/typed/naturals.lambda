@@ -1,0 +1,66 @@
+{-- Boolean Definitions --}
+not = λ b : Bool . if b then false else true
+and = λ a : Bool . λ b : Bool . if a then (if b then true else false) else false
+or  = λ a : Bool . λ b : Bool . if a then true else (if b then true else false)
+impl  = λ a : Bool . λ b : Bool . or (not a) b
+equiv = λ a : Bool . λ b : Bool . and (impl a b) (impl b a)
+eqb ≐ λ x : Bool . λ y : Bool . if (equiv x y) then true else false
+{-- End Boolean Definitions --}
+
+-- Operations
+pred = λ n : Nat . n - 1
+
+-- Comparison
+leq = λ x : Nat . λ y : Nat . iszero (x - y)
+eqn = λ x : Nat . λ y : Nat . and (leq x y) (leq y x)
+
+-- Complex Functions
+factfunc = λ f : Nat -> Nat .
+	       λ n : Nat . if (eqn n 0)
+                          then 1
+                          else (n * (f (n - 1)))
+
+factorial = fix factfunc
+
+fibfunc = λ f : Nat -> Nat .
+	      λ n : Nat . if (eqn n 0)
+                         then 0
+                         else (if (eqn n 1)
+                                  then 1
+                                  else ((f (n - 1)) + (f (n - 2))))
+
+fibonacci = fix fibfunc
+
+isevenFunc = λ f : Nat -> Bool .
+             λ x : Nat . if (iszero x)
+                            then true
+                            else if (iszero (pred x))
+                                 then false
+                                 else (f (pred (pred x)))
+
+iseven = fix isevenFunc
+
+-- Examples
+:e 0 + 0
+:e 0 + 1
+:e 3 + 7
+:e 7 + 3
+
+:e pred 3
+:e 3 - 1
+:e 8 - 5
+
+:e leq 10 10
+:e eqn 10 10
+:e eqn 10 9
+
+:t iseven
+:e iseven 8
+
+:e factorial 0
+:e factorial 1
+:e factorial 3
+
+:e fibonacci 0
+:e fibonacci 1
+:e fibonacci 7

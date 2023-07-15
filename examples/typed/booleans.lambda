@@ -1,0 +1,24 @@
+-- Booleans
+
+:i true
+:i false
+
+-- Operators
+not = λ b : Bool . if b then false else true
+and = λ a : Bool . λ b : Bool . if a then (if b then true else false) else false
+or  = λ a : Bool . λ b : Bool . if a then true else (if b then true else false)
+impl  = λ a : Bool . λ b : Bool . or (not a) b
+equiv = λ a : Bool . λ b : Bool . and (impl a b) (impl b a)
+
+-- Control
+eq ≐ λ x : Bool . λ y : Bool . if (equiv x y) then true else false
+
+-- <=> Truth Table
+:e equiv true  true
+:e equiv true  false
+:e equiv false true
+:e equiv false false
+
+-- Example If
+:e if true then 1 else 0
+:e if false then 0 else 1

@@ -38,7 +38,7 @@ symbol = L.symbol sc
 reserved :: Text -> Parser Text
 reserved s = lexeme $ try (string s <* notFollowedBy alphaNumChar)
 
-parens :: Parser Term -> Parser Term
+parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
 
 lambda :: Parser Text
@@ -75,10 +75,11 @@ boolType :: Parser Text
 boolType = symbol "𝔹"<|> reserved "Bool" <|> reserved "Boolean"
 
 typeVal :: Parser Type
-typeVal = (natType $> Natural) <|> (boolType $> Boolean)
+typeVal = makeExprParser basic typeTable
+  where basic = (natType $> Natural) <|> (boolType $> Boolean) <|> parens typeVal
 
 typeAnnotation :: Parser Type
-typeAnnotation = symbol ":" *> makeExprParser typeVal typeTable
+typeAnnotation = symbol ":" *> typeVal
 
 -- Type Arrows
 typeTable :: [[Operator Parser Type]]

@@ -19,7 +19,7 @@ typeOf ctx (App f x)   = do
   case tyf of
     (Arrow tya tyr) -> if tya == tyx
       then Right tyr
-      else typeErr $ show x ++ " cannot be applied to type " ++ show tyf
+      else typeErr $ show x ++ " of type " ++ show tyx ++ " cannot be applied to type " ++ show tyf
     _               -> typeErr $ show x ++ " cannot be applied to type " ++ show tyf
 typeOf ctx (If g t e)  = do
   tyg <- typeOf ctx g

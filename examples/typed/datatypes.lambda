@@ -1,0 +1,46 @@
+{-- Boolean Definitions --}
+not = λ b : Bool . if b then false else true
+and = λ a : Bool . λ b : Bool . if a then (if b then true else false) else false
+or  = λ a : Bool . λ b : Bool . if a then true else (if b then true else false)
+impl  = λ a : Bool . λ b : Bool . or (not a) b
+equiv = λ a : Bool . λ b : Bool . and (impl a b) (impl b a)
+eqb ≐ λ x : Bool . λ y : Bool . if (equiv x y) then true else false
+{-- End Boolean Definitions --}
+
+{-- Natural Definitions --}
+pred = λ n : Nat . n - 1
+leq = λ x : Nat . λ y : Nat . iszero (x - y)
+eqn = λ x : Nat . λ y : Nat . and (leq x y) (leq y x)
+{-- End Natural Definitions --}
+
+{-- Pairs --}
+-- Definition
+pairNat = lambda a : Nat . lambda b : Nat . lambda f : Nat -> Nat -> Nat . ((f a) b)
+
+-- Operations
+fst = lambda p : (Nat -> Nat -> Nat) -> Nat . p (lambda a : Nat . lambda b : Nat . a)
+snd = lambda p : (Nat -> Nat -> Nat) -> Nat . p (lambda a : Nat . lambda b : Nat . b)
+
+-- Examples
+:e pairNat 1 2
+
+{-- Lists --}
+-- Definition
+nil = lambda f : Nat -> Nat -> Nat . lambda s : Nat . s
+cons = lambda head : Nat .
+         lambda tail : (Nat -> Nat -> Nat) -> Nat -> Nat .
+           lambda f : Nat -> Nat -> Nat .
+             lambda s : Nat .
+               f head (tail f s)
+
+-- Operations
+length = lambda list : (ℕ -> ℕ -> ℕ) -> ℕ -> ℕ .
+         list (lambda a : Nat . lambda res : Nat . succ res) 0
+sum = lambda list : (ℕ -> ℕ -> ℕ) -> ℕ -> ℕ .
+      list (lambda a : Nat . lambda res : Nat . a + res) 0
+
+-- Examples
+l1 = cons 3 (cons 2 (cons 1 (cons 0 nil)))
+:t l1
+:e length l1
+:e sum l1
