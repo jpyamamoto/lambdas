@@ -1,0 +1,35 @@
+-- Booleans
+
+true  = Λ X . λ x : X . λ y : X . x
+false = Λ X . λ x : X . λ y : X . y
+
+:i true
+:i false
+
+:t true
+
+Bool :: ∀ X . X -> X -> X
+
+-- Operators
+not = λ b : ∀ X . X -> X -> X . Λ X . λ t : X . λ f : X . b [X] f t
+and = λ a : Bool . λ b : Bool . a b false
+or = λ a : Bool . λ b : Bool . a b true
+impl  = λ a : Bool . λ b : Bool . or (not a) b
+equiv = λ a : Bool . λ b : Bool . and (impl a b) (impl b a)
+
+if = Λ X . λ b : Bool . λ t : X . λ f : X . b [X] t f
+
+-- Control
+eq ≐ Lambda NonBool . λ x : NonBool . λ y : Bool . equiv x y
+
+-- <=> Truth Table
+:e equiv true  true
+:e equiv true  false
+:e equiv false true
+:e equiv false false
+
+:e eq [forall X . X] false false
+
+-- Example If
+:e if true true false
+:e if false true false

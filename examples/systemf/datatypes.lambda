@@ -1,0 +1,63 @@
+{-- Boolean Definitions --}
+not = λ b : Bool . if b then false else true
+and = λ a : Bool . λ b : Bool . if a then (if b then true else false) else false
+or  = λ a : Bool . λ b : Bool . if a then true else (if b then true else false)
+impl  = λ a : Bool . λ b : Bool . or (not a) b
+equiv = λ a : Bool . λ b : Bool . and (impl a b) (impl b a)
+eqb ≐ λ x : Bool . λ y : Bool . if (equiv x y) then true else false
+{-- End Boolean Definitions --}
+
+{-- Natural Definitions --}
+pred = λ n : Nat . n - 1
+leq = λ x : Nat . λ y : Nat . iszero (x - y)
+eqn = λ x : Nat . λ y : Nat . and (leq x y) (leq y x)
+{-- End Natural Definitions --}
+
+{-- Pairs --}
+-- Definition
+pair = lambda a . lambda b . lambda f . ((f a) b)
+
+-- Operations
+fst = lambda p . p (lambda a . lambda b . a)
+snd = lambda p . p (lambda a . lambda b . b)
+
+-- Examples
+:e pair uno dos
+
+{-- Lists --}
+-- Definition
+nil = lambda f . lambda s . s
+cons = lambda head .
+         lambda tail .
+           lambda f .
+             lambda s .
+               f head (tail f s)
+
+-- Operations
+length = lambda list .
+         list (lambda a . lambda res . succ res) 0
+sum = lambda list .
+      list (lambda a . lambda res . plus a res) 0
+concat = lambda list1 . lambda list2 . list1 cons list2
+
+-- Examples
+l1 = cons 3 (cons 2 (cons 1 (cons 0 nil)))
+:e length l1
+:e sum l1
+:e concat (cons 4 nil) l1
+
+{-- Trees (information only in leafs) --}
+-- Definition
+leaf = lambda a . lambda n . lambda lf . lf a
+node = lambda l . lambda r . lambda n . lambda lf .
+        n (l n lf) (r n lf)
+
+-- Operations
+size = lambda tree . tree
+                     (lambda sizeL . lambda sizeR .
+                        succ (sizeL + sizeR))
+                     (lambda v . 1)
+
+-- Examples
+t1 = node (node (leaf 0) (leaf 1)) (leaf 2)
+:e size t1
