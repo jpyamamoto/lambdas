@@ -11,16 +11,16 @@ false = Λ X . λ x : X . λ y : X . y
 Bool :: ∀ X . X -> X -> X
 
 -- Operators
-not = λ b : ∀ X . X -> X -> X . Λ X . λ t : X . λ f : X . b [X] f t
-and = λ a : Bool . λ b : Bool . a b false
-or = λ a : Bool . λ b : Bool . a b true
+not = λ b : ∀ X . X -> X -> X . (b [Bool]) false true
+and = λ a : Bool . λ b : Bool . (a [Bool]) b false
+or = λ a : Bool . λ b : Bool . (a [Bool]) true b
 impl  = λ a : Bool . λ b : Bool . or (not a) b
 equiv = λ a : Bool . λ b : Bool . and (impl a b) (impl b a)
 
 if = Λ X . λ b : Bool . λ t : X . λ f : X . b [X] t f
 
 -- Control
-eq ≐ Lambda NonBool . λ x : NonBool . λ y : Bool . equiv x y
+eq ≐ λ x : Bool . λ y : Bool . equiv x y
 
 -- <=> Truth Table
 :e equiv true  true
@@ -28,8 +28,11 @@ eq ≐ Lambda NonBool . λ x : NonBool . λ y : Bool . equiv x y
 :e equiv false true
 :e equiv false false
 
-:e eq [forall X . X] false false
+:e eq false false
+
+:t if
+:t if [Bool]
 
 -- Example If
-:e if true true false
-:e if false true false
+-- :e if [Bool] true true false
+-- :e if [Bool] false true false

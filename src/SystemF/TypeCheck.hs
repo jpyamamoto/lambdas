@@ -1,5 +1,9 @@
 module SystemF.TypeCheck ( typeOf
                          , Context
+                         , shift
+                         , substTopType
+                         , substitute
+                         , mapType
                          ) where
 
 import Error
@@ -12,30 +16,52 @@ typeOf ctx (Var (Just i) n) = typeFromContext ctx n i
 typeOf ctx (Var Nothing  n) = typeFromContext ctx n 0
 typeOf ctx (Abs v t b) = do
   tyb <- typeOf ((v,t):ctx) b
-  return $ Arrow t (shiftTopType (-1) tyb)
+  return $ Arrow t tyb
 typeOf ctx (App f x)   = do
   tyf <- typeOf ctx f
   tyx <- typeOf ctx x
   case tyf of
     (Arrow tya tyr) -> if tya == tyx
       then Right tyr
-      else typeErr $ show x ++ " cannot be applied to type " ++ show tyf
+      else typeErr $ show x ++ " of type " ++ show tyx ++ " cannot be applied to type " ++ show tyf
     (All _ b)       -> return $ substTopType b tyx
-    _               -> typeErr $ show x ++ " cannot be applied to type " ++ show tyf
+    _               -> typeErr $ show tyf ++ " cannot be instanciated with type " ++ show x
 typeOf ctx (AbsT v b) = do
   tyb <- typeOf ctx b
   return $ All v tyb
-typeOf _   (ArgT t) = return t
+typeOf ctx (ArgT t) = normalize ctx t
 
 typeErr :: String -> Either Error Type
 typeErr = Left . TypeError
 
 typeFromContext :: Context -> String -> Int -> Either Error Type
 typeFromContext []  name _ = typeErr $ name ++ " has an invalid type"
-typeFromContext ctx name 0 = case lookup name ctx of
-  (Just ty) -> Right ty
-  Nothing   -> typeErr $ name ++ " has an invalid type"
-typeFromContext ctx name i = typeFromContext (drop i ctx) name 0
+typeFromContext ctx name 0 = do
+  ty <- case lookup name ctx of
+    (Just ty) -> Right ty
+    Nothing   -> typeErr $ name ++ " has an invalid type"
+
+  normalize ctx ty
+typeFromContext ctx name i = do
+  ty <- typeFromContext (drop i ctx) name 0
+  normalize ctx ty
+
+normalize :: Context -> Type -> Either Error Type
+normalize []  ty = typeErr $ show ty ++ " type does not exist"
+normalize ctx (VarT Nothing n) = do
+  t <- case lookup n ctx of
+    (Just ty) -> Right ty
+    Nothing   -> typeErr $ show n ++ " does not exist"
+
+  normalize ctx t
+normalize _   (VarT (Just i) n) = Right $ VarT (Just i) n
+normalize ctx (Arrow t1 t2)     = do
+  t1' <- normalize ctx t1
+  t2' <- normalize ctx t2
+  return $ Arrow t1' t2'
+normalize ctx (All n t)         = do
+  t' <- normalize ctx t
+  return $ All n t'
 
 shiftTopType :: Int -> Type -> Type
 shiftTopType i = shift i 0

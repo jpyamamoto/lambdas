@@ -28,6 +28,8 @@ library
       CLI
       Components
       Error
+      SystemF.Evaluation
+      SystemF.Interpreter
       SystemF.Parser
       SystemF.Syntax
       SystemF.TypeCheck

@@ -40,6 +40,7 @@ data Type =
 instance Show Type where
   show (Arrow t1 t2) = "(" ++ show t1 ++ " -> " ++ show t2 ++ ")"
   show (VarT _ n) = n
+  -- show (VarT x n) = "(VarT " ++ show x ++ " " ++ show n ++ ")"
   show (All n ty) = "(∀ " ++ n ++ " . " ++ show ty ++ ")"
 
 data Instruction =
