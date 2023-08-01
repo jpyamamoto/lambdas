@@ -1,66 +1,88 @@
 {-- Boolean Definitions --}
-not = λ b : Bool . if b then false else true
-and = λ a : Bool . λ b : Bool . if a then (if b then true else false) else false
-or  = λ a : Bool . λ b : Bool . if a then true else (if b then true else false)
+true  = Λ X . λ x : X . λ y : X . x
+false = Λ X . λ x : X . λ y : X . y
+Bool :: ∀ X . X -> X -> X
+not = λ b : ∀ X . X -> X -> X . (b [Bool]) false true
+and = λ a : Bool . λ b : Bool . (a [Bool]) b false
+or = λ a : Bool . λ b : Bool . (a [Bool]) true b
 impl  = λ a : Bool . λ b : Bool . or (not a) b
 equiv = λ a : Bool . λ b : Bool . and (impl a b) (impl b a)
-eqb ≐ λ x : Bool . λ y : Bool . if (equiv x y) then true else false
+if = Λ X . λ b : Bool . λ t : X . λ f : X . b [X] t f
+eqB ≐ λ x : Bool . λ y : Bool . equiv x y
 {-- End Boolean Definitions --}
 
+-- Types
+Nat :: ∀ X . X -> (X -> X) -> X
+
+-- Church Numerals
+cero    = Λ X . λ z : X . λ s : X -> X . z
+uno     = Λ X . λ z : X . λ s : X -> X . s z
+dos     = Λ X . λ z : X . λ s : X -> X . s (s z)
+tres    = Λ X . λ z : X . λ s : X -> X . s (s (s z))
+cuatro  = Λ X . λ z : X . λ s : X -> X . s (s (s (s z)))
+cinco   = Λ X . λ z : X . λ s : X -> X . s (s (s (s (s z))))
+seis    = Λ X . λ z : X . λ s : X -> X . s (s (s (s (s (s z)))))
+siete   = Λ X . λ z : X . λ s : X -> X . s (s (s (s (s (s (s z))))))
+ocho    = Λ X . λ z : X . λ s : X -> X . s (s (s (s (s (s (s (s z)))))))
+nueve   = Λ X . λ z : X . λ s : X -> X . s (s (s (s (s (s (s (s (s z))))))))
+diez    = Λ X . λ z : X . λ s : X -> X . s (s (s (s (s (s (s (s (s (s z)))))))))
+
+-- Recursion
+iterNat = Λ U . λ u : U . λ f : U -> U . λ t : Nat . t [U] u f
+
 -- Operations
-pred = λ n : Nat . n - 1
+succ = λ n : Nat . Λ X . λ z : X . λ s : X -> X . s (n [X] z s)
+plus = λ m : Nat . λ n : Nat . iterNat [Nat] m succ n
+prod = λ m : Nat . λ n : Nat . iterNat [Nat] m (plus n) cero
+-- pred = λ n : Nat . λ s : Nat -> Nat . λ z : Nat . n (λ g . λ h . h (g s)) (λ u . z) (λ u . u)
+-- minus = λ m . λ n . n pred m
 
 -- Comparison
-leq = λ x : Nat . λ y : Nat . iszero (x - y)
-eqn = λ x : Nat . λ y : Nat . and (leq x y) (leq y x)
+iszero = λ n : Nat . iterNat [Bool] true (λ b : Bool . false) n
+-- leq = λ x : Nat . λ y : Nat . iszero (minus x y)
+-- eqn = λ x : Nat . λ y : Nat . and (leq x y) (leq y x)
 
 -- Complex Functions
-factfunc = λ f : Nat -> Nat .
-	       λ n : Nat . if (eqn n 0)
-                          then 1
-                          else (n * (f (n - 1)))
+-- factfunc = λ f : Nat -> Nat .
+-- 	       λ n : Nat . if (eqn n 0)
+--                           then 1
+--                           else (n * (f (n - 1)))
+--
+-- factorial = fix factfunc
+--
+-- fibfunc = λ f : Nat -> Nat .
+-- 	      λ n : Nat . if (eqn n 0)
+--                          then 0
+--                          else (if (eqn n 1)
+--                                   then 1
+--                                   else ((f (n - 1)) + (f (n - 2))))
+--
+-- fibonacci = fix fibfunc
 
-factorial = fix factfunc
-
-fibfunc = λ f : Nat -> Nat .
-	      λ n : Nat . if (eqn n 0)
-                         then 0
-                         else (if (eqn n 1)
-                                  then 1
-                                  else ((f (n - 1)) + (f (n - 2))))
-
-fibonacci = fix fibfunc
-
-isevenFunc = λ f : Nat -> Bool .
-             λ x : Nat . if (iszero x)
-                            then true
-                            else if (iszero (pred x))
-                                 then false
-                                 else (f (pred (pred x)))
-
-iseven = fix isevenFunc
+iseven = λ n : Nat . iterNat [Bool] true not n
 
 -- Examples
-:e 0 + 0
-:e 0 + 1
-:e 3 + 7
-:e 7 + 3
+:e plus cero cero
+:e plus cero uno
+:e plus tres siete
+:e plus siete tres
 
-:e pred 3
-:e 3 - 1
-:e 8 - 5
+-- :e pred tres
+-- :e minus tres uno
+-- :e minus ocho cinco
 
-:e leq 10 10
-:e eqn 10 10
-:e eqn 10 9
+-- :e leq 10 10
+-- :e eqn 10 10
+-- :e eqn 10 9
 
 :t iseven
-:e iseven 8
+:e iseven ocho
+:e iseven siete
 
-:e factorial 0
-:e factorial 1
-:e factorial 3
-
-:e fibonacci 0
-:e fibonacci 1
-:e fibonacci 7
+-- :e factorial 0
+-- :e factorial 1
+-- :e factorial 3
+--
+-- :e fibonacci 0
+-- :e fibonacci 1
+-- :e fibonacci 7

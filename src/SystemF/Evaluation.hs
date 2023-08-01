@@ -33,7 +33,7 @@ substTopTerm t x = shift (-1) (substitute t 0 (shift 1 x))
 
 
 substTopTermType :: Term -> Type -> Term
-substTopTermType t ty = shift (-1) (substTermType t 0 (Ty.shift 1 0 ty))
+substTopTermType t ty = shift (-1) (substTermType t 0 (Ty.shift 1 ty))
 
 
 isVal :: Context -> Term -> Bool
@@ -51,7 +51,7 @@ shiftAbove off = mapTerm onVar onType
   where onVar c i n
           | i < c     = Var (Just i) n
           | otherwise = Var (Just (i + off)) n
-        onType = Ty.shift off
+        onType = Ty.shiftAbove off
 
 
 substitute :: Term -> Int -> Term -> Term
