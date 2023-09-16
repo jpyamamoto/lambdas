@@ -29,49 +29,12 @@ diez    = Λ X . λ z : X . λ s : X -> X . s (s (s (s (s (s (s (s (s (s z))))))
 {-- Pairs --}
 -- Definition
 Pair :: forall U . forall V . forall X . (U -> V -> X) -> X
-pair = Lambda X . Lambda Y . lambda x : X . lambda y : Y . Lambda Z . lambda f : X -> Y -> Z . f x y
-
--- Operations
-fst = Lambda U . Lambda V . lambda p : Pair . p [U] (lambda u : U . lambda v : V . u)
-snd = Lambda U . Lambda V . lambda p : Pair . p [V] (lambda u : U . lambda v : V . v)
+pair = Lambda U . Lambda V . lambda u : U . lambda v : V . Lambda X . lambda f : U -> V -> X . ((f u) v)
 
 -- Examples
 :e pair [Nat] [Nat] uno dos
 
--- {-- Lists --}
--- -- Definition
--- nil = lambda f . lambda s . s
--- cons = lambda head .
---          lambda tail .
---            lambda f .
---              lambda s .
---                f head (tail f s)
---
--- -- Operations
--- length = lambda list .
---          list (lambda a . lambda res . succ res) 0
--- sum = lambda list .
---       list (lambda a . lambda res . plus a res) 0
--- concat = lambda list1 . lambda list2 . list1 cons list2
---
--- -- Examples
--- l1 = cons 3 (cons 2 (cons 1 (cons 0 nil)))
--- :e length l1
--- :e sum l1
--- :e concat (cons 4 nil) l1
---
--- {-- Trees (information only in leafs) --}
--- -- Definition
--- leaf = lambda a . lambda n . lambda lf . lf a
--- node = lambda l . lambda r . lambda n . lambda lf .
---         n (l n lf) (r n lf)
---
--- -- Operations
--- size = lambda tree . tree
---                      (lambda sizeL . lambda sizeR .
---                         succ (sizeL + sizeR))
---                      (lambda v . 1)
---
--- -- Examples
--- t1 = node (node (leaf 0) (leaf 1)) (leaf 2)
--- :e size t1
+nil  = Λ X . (Λ R . λ c : X -> R -> R . λ n : R . n)
+cons = Λ X . λ h : X . λ t : ∀ R . (X -> R -> R) -> R -> R . (Λ R . λ c : X -> R -> R . λ n : R . c h (t [R] c n))
+
+:e cons [Nat] uno (cons [Nat] dos (nil [Nat]))

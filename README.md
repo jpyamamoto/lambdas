@@ -38,7 +38,5 @@ Lambda Calculus:
   - [x] Operators.
   - [x] Type checking.
   - [x] Fixpoint recursion.
-- [ ] System F.
-  - [ ] Type definitions.
-- [ ] Algebraic Datatypes and Records.
-
+- [x] System F.
+  - [x] Type definitions.

@@ -35,7 +35,12 @@ data Type =
     VarT (Maybe Int) String
   | Arrow Type Type
   | All String Type
-  deriving Eq
+
+instance Eq Type where
+  (==) (VarT _ x) (VarT _ y) = x == y
+  (==) (Arrow t1 t2) (Arrow t1' t2') = t1 == t1' && t2 == t2'
+  (==) (All v t) (All v' t') = v == v' && t == t'
+  (==) _ _ = False
 
 instance Show Type where
   show (Arrow t1 t2) = "(" ++ show t1 ++ " -> " ++ show t2 ++ ")"
