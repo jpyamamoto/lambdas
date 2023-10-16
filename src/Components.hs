@@ -6,6 +6,6 @@ import Data.Text (Text)
 
 import Error
 
-type ProgramParser a = Text -> Either Error [a]
+type ProgramParser a = String -> Either Error [a]
 
 type Interpreter a b = [a] -> Either Error [Maybe b]

@@ -8,4 +8,10 @@ and this project adheres to the
 
 ## Unreleased
 
-## 0.1.0.0 - YYYY-MM-DD
+## 0.1.0.0 - 2023-10-15
+
+### Added
+
+- First stable version.
+- Can be compiled to JS with GHC 9.8.
+- It does not support the use of `Text`, due to incompatibilities with the GHC JS backend.

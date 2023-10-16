@@ -1,7 +1,6 @@
 module Typed.Parser (parse) where
 
 import Control.Monad.State
-import Data.Text (Text)
 import Data.Void
 import Data.List (elemIndex)
 import Data.Functor (($>))
@@ -16,9 +15,9 @@ import Typed.Syntax
 import Components (ProgramParser)
 import Error
 
-type Parser = ParsecT Void Text (State ( [String] -- Bound Variables
-                                       , [String] -- Definitions
-                                       ))
+type Parser = ParsecT Void String (State ( [String] -- Bound Variables
+                                         , [String] -- Definitions
+                                         ))
 
 reservedWords :: [String]
 reservedWords = ["true", "false", "if", "iszero", "lambda", "then", "else", "succ", "fix"]
@@ -32,22 +31,22 @@ sc = L.space
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme sc
 
-symbol :: Text -> Parser Text
+symbol :: String -> Parser String
 symbol = L.symbol sc
 
-reserved :: Text -> Parser Text
+reserved :: String -> Parser String
 reserved s = lexeme $ try (string s <* notFollowedBy alphaNumChar)
 
 parens :: Parser a -> Parser a
 parens = between (symbol "(") (symbol ")")
 
-lambda :: Parser Text
+lambda :: Parser String
 lambda = reserved "lambda" <|> symbol "λ" <|> symbol "\\"
 
-dot :: Parser Text
+dot :: Parser String
 dot = symbol "."
 
-isdefined :: Parser Text
+isdefined :: Parser String
 isdefined = symbol "=" <|> symbol "≐"
 
 identifierWord :: Parser String
@@ -68,10 +67,10 @@ boolean = Bool <$> (parseTrue <|> parseFalse)
   where parseTrue = reserved "true" $> True
         parseFalse = reserved "false" $> False
 
-natType :: Parser Text
+natType :: Parser String
 natType = symbol "ℕ"<|> reserved "Nat" <|> reserved "Natural"
 
-boolType :: Parser Text
+boolType :: Parser String
 boolType = symbol "𝔹"<|> reserved "Bool" <|> reserved "Boolean"
 
 typeVal :: Parser Type
@@ -137,7 +136,7 @@ arithTable :: [[Operator Parser Term]]
 arithTable = [ [ binary "*" Mul ]
              , [ binary "+" Add, binary "-" Min ] ]
 
-binary :: Text -> (t -> t -> t) -> Operator Parser t
+binary :: String -> (t -> t -> t) -> Operator Parser t
 binary name f = InfixL (f <$ symbol name)
 
 nonArithTerm :: Parser Term

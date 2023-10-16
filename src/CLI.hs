@@ -1,7 +1,6 @@
 module CLI ( buildMain ) where
 
 import System.Environment
-import Data.Text (pack)
 import Data.Maybe (isJust, fromJust)
 
 import Components (ProgramParser, Interpreter)
@@ -15,7 +14,7 @@ buildMain parse interpret = do
     (Just file) -> do
       contents <- readFile file
 
-      case parse (pack contents) of
+      case parse contents of
         Left err -> print err
         Right ast -> do
           let results = interpret ast

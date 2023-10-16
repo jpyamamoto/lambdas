@@ -1,7 +1,6 @@
 module SystemF.Parser (parse) where
 
 import Control.Monad.State
-import Data.Text (Text)
 import Data.Void
 import Data.List (elemIndex)
 
@@ -14,10 +13,10 @@ import SystemF.Syntax
 import Components (ProgramParser)
 import Error
 
-type Parser = ParsecT Void Text (State ( [String] -- Bound Variables
-                                       , [String] -- Types
-                                       , [String] -- Temp Definitions
-                                       ))
+type Parser = ParsecT Void String (State ( [String] -- Bound Variables
+                                         , [String] -- Types
+                                         , [String] -- Temp Definitions
+                                         ))
 
 ---- AUX ----
 -- Triplet projections
@@ -53,10 +52,10 @@ sc = L.space
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme sc
 
-symbol :: Text -> Parser Text
+symbol :: String -> Parser String
 symbol = L.symbol sc
 
-reserved :: Text -> Parser Text
+reserved :: String -> Parser String
 reserved s = lexeme $ try (string s <* notFollowedBy alphaNumChar)
 
 parens :: Parser a -> Parser a
@@ -68,22 +67,22 @@ brackets = between (symbol "[") (symbol "]")
 typeArg :: Parser Term
 typeArg = brackets (ArgT <$> typeVal)
 
-forall :: Parser Text
+forall :: Parser String
 forall = reserved "forall" <|> symbol "∀"
 
-lambda :: Parser Text
+lambda :: Parser String
 lambda = reserved "lambda" <|> symbol "λ" <|> symbol "\\"
 
-upperLambda :: Parser Text
+upperLambda :: Parser String
 upperLambda = reserved "Lambda" <|> symbol "Λ"
 
-dot :: Parser Text
+dot :: Parser String
 dot = symbol "."
 
-isdefined :: Parser Text
+isdefined :: Parser String
 isdefined = symbol "=" <|> symbol "≐"
 
-istypedefined :: Parser Text
+istypedefined :: Parser String
 istypedefined = symbol "::"
 
 identifierWord :: Parser String
