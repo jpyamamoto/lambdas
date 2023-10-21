@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alonzo</title>
+  </head>
+  <body class="terminal container match-braces rainbow-braces">
+    <header class="terminal-nav">
+      <div class="terminal-logo">
+        <div class="logo terminal-prompt">
+          <a href="#" class="no-style">Alonzo</a>
+        </div>
+      </div>
+      <nav class="terminal-menu">
+        <ul>
+          <li><a class="menu-item" href="#info">Lenguajes</a></li>
+          <li><a class="menu-item" href="#about">About</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Fieldset -->
+    <h1>Entrada</h1>
+    <fieldset>
+      <div class="form-group" id="lang-div">
+        <label for="language">Lenguaje: </label>
+        <select name="language" id="language">
+          <option value="untyped">Untyped</option>
+          <option value="typed">Typed</option>
+          <option value="systemf" selected>System F</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="program-input">Programa:</label>
+        <div id="program-input" class="match-braces"></div>
+      </div>
+
+      <button id="run" class="btn btn-primary btn-ghost">Ejecutar</button>
+      <button class="btn btn-error btn-ghost" id="reset">Limpiar</button>
+      <button class="btn btn-ghost" id="example">Cargar Ejemplo</button>
+    </fieldset>
+    <!-- End Fieldset -->
+
+    <hr />
+
+    <h1>Salida</h1>
+    <pre class="terminal-alert" id="output"><code class="language-lambda"></code></pre>
+
+    <hr />
+
+    <section id="info">
+      <h1>Lenguajes</h1>
+
+      <h2>Cálculo λ simple</h2>
+      <p>Originalmente desarrollado por <i>Alonzo Church</i> en la década de 1930, este es un modelo de cómputo popular por su simpleza.</p>
+      <p>Su gramática es la siguiente:</p>
+      <pre>
+        v := x | y | z | ...
+        t := v | (λ v . t) | t t</pre>
+
+      <p>El intérprete implementado permite usar tanto variables libres como variables ligadas.</p>
+
+      <h2>Cálculo λ con tipos simples</h2>
+      <p>Esta variante del cálculo λ simple, introduce la noción de tipos y nos brinda seguridad en la ejecución.</p>
+      <p>Para la implementación actual, los tipos que agregamos son <code>Nat</code> y <code>Bool</code>.</p>
+      <p>Su gramática es la siguiente:</p>
+      <pre>
+        v := x | y | z | ...
+        T := Nat | Bool | T -> T
+        n := 0 | 1 | 2 | ...
+        t := v | n | (λ v : T . t) | t t | if t then t else t | iszero t | succ t | t * t | t + t | t - t | fix t</pre>
+
+      <p>Este intérprete considera <code>Natural</code> y <code>Boolean</code> alias de los tipos <code>Nat</code> y <code>Bool</code> respectivamente. De igual manera se pueden usar los símbolos <code>ℕ</code> y <code>𝔹</code></p>
+
+      <h2>Sistema F</h2>
+      <p>Esta es una variante desarrollada por Jean-Yves Girard que permite la definición de tipos polimórficos.</p>
+      <pre>
+        v := x | y | z | ...
+        V := A | B | C | ...
+        T := V | T -> T | ∀ V . T
+        t := v | (λ v : T . t) | t t | (Λ V . t) | t [T]</pre>
+
+      <h2>Intérpretes</h2>
+      <p>Los intérpretes implementados permiten realizar definiciones de términos con la siguiente sintaxis:</p>
+      <pre>
+        f = término
+        g ≐ término</pre>
+      <p>El uso del símbolo <code>=</code> o <code>≐</code> es indistinto.</p>
+      <p>Los intérpretes implementados únicamente consideran nombres de términos válidos, aquellos que comienzan con una letra minúscula.</p>
+
+      <p>El intérprete del Sistema F permite dar definiciones de tipos con la siguiente sintaxis:</p>
+      <pre>
+        A :: tipo </pre>
+
+      <p>Los intérpretes implementados únicamente consideran nombres de tipos válidos, aquellos que comienzan con una letra mayúscula.</p>
+
+      <p>Los siguientes tokens se reconocen como equivalentes para el cuantificador sobre tipos:</p>
+      <ul>
+        <li><code>forall</code></li>
+        <li><code>∀</code></li>
+      </ul>
+
+      <p>De la misma manera, los siguientes tokens se reconocen como equivalentes para la abstracción de términos:</p>
+      <ul>
+        <li><code>\</code></li>
+        <li><code>lambda</code></li>
+        <li><code>λ</code></li>
+      </ul>
+
+      <p>Y los siguientes tokens se reconocen como equivalentes para la abstracción sobre tipos:</p>
+      <ul>
+        <li><code>Lambda</code></li>
+        <li><code>Λ</code></li>
+      </ul>
+
+      <p>Las secciones de código entre <code>{--</code> y <code>--}</code> se consideran comentarios, y son ignoradas por el intérprete. De igual manera, las secciones de código que comienzan con <code>--</code> son comentarios hasta el final de línea.</p>
+
+    </section>
+
+    <hr />
+
+    <section id="about">
+      <h1>About</h1>
+      <p>Proyecto desarrollado por <a href="https://github.com/jpyamamoto">@jpyamamoto</a> como parte de mi servicio social para el curso de <i>Lenguajes de Programación II</i> impartido en la Facultad de Ciencias, UNAM.</p>
+      <h3>Equipo:</h3>
+      <ul>
+        <li>Dra. <a href="https://louglzhuesca.github.io/">Lourdes del Carmen González Huesca</a></li>
+        <li>Dra. <a href="https://sites.google.com/ciencias.unam.mx/karlaramirezpulido/home">Karla Ramírez Pulido</a></li>
+        <li><a href="https://github.com/kotoromo">Nicky García</a></li>
+        <li><a href="https://github.com/jpyamamoto">Juan Pablo Yamamoto Zazueta</a></li>
+      </ul>
+
+      <h3>Herramientas:</h3>
+      <p>Se utilizaron las siguientes herramientas en el desarrollo de este proyecto:</p>
+      <ul>
+        <li><a href="https://www.haskell.org/ghc/">GHC</a> 9.8 (con el backend a JS)</li>
+        <li><a href="https://hackage.haskell.org/package/megaparsec">megaparsec</a></li>
+        <li><a href="https://terminalcss.xyz/dark/">terminal.css</a></li>
+        <li><a href="https://kazzkiq.github.io/CodeFlask/">codeflask</a></li>
+      </ul>
+    </section>
+
+    <script language="javascript" src="/js/interpreters.js" defer></script>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
