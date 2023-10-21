@@ -180,11 +180,19 @@ window.addEventListener('load', () => {
   const outputArea = outputSection.getElementsByTagName('code')[0];
   const exampleButton = document.getElementById('example');
 
-  const INTERPRETERS = {
+  let INTERPRETERS = {
     'untyped': window.untyped,
     'typed': window.typed,
     'systemf': window.systemF,
   };
+
+  setTimeout(function() {
+    INTERPRETERS = {
+      'untyped': window.untyped,
+      'typed': window.typed,
+      'systemf': window.systemF,
+    };
+  }, 1000);
 
   document.getElementById('reset').addEventListener('click', () => {
     flask.updateCode('');
