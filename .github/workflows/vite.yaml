@@ -27,6 +27,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: 'alonzo'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -35,6 +38,7 @@ jobs:
         with:
           node-version: 18
           cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
       - name: Install dependencies
         working-directory: ./alonzo
         run: npm install
